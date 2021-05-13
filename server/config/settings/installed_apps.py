@@ -8,7 +8,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    'apps.adverts',
+]
 
 INSTALLED_APPS += LOCAL_APPS
 
