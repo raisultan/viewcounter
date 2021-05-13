@@ -5,7 +5,7 @@ description = ""
 authors = ["raisultan <ki.xbozz@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "3.8.5"
 Django = "3.2.2"
 psycopg2-binary = "2.8.6"
 dj-database-url = "0.5.0"
