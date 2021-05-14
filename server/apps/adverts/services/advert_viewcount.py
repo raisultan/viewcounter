@@ -16,20 +16,15 @@ class AdvertViewCountService:
     REQUEST_SESSION_CACHE_LIFETIME: Final[int] = 60 * 60
 
     @classmethod
-    def count(cls, request: HttpRequest, advert: Advert) -> bool:
+    def count(cls, request: HttpRequest, advert: Advert) -> None:
         request_cache_key = cls._compose_cache_key(request)
         request_cache_value = cache.get(request_cache_key)
 
         if not request_cache_value:
             advert.views = advert.views + 1
             advert.save()
-
-            is_counted = True
         else:
             cache.set(request_cache_key, True, timeout=cls.REQUEST_SESSION_CACHE_LIFETIME)
-            is_counted = False
-
-        return is_counted
 
     @classmethod
     def _get_ip(cls, request: HttpRequest) -> str:
@@ -40,7 +35,7 @@ class AdvertViewCountService:
 
         if ip_address:
             try:
-                ip_address = cls.IP_RE.match(ip_address)
+                ip_address = cls.IP_REGEX.match(ip_address)
                 if ip_address:
                     ip_address = ip_address.group(0)
                 else:
@@ -54,6 +49,6 @@ class AdvertViewCountService:
     def _compose_cache_key(cls, request: HttpRequest) -> str:
         return cls.VIEW_COUNT_CACHE_TEMPLATE.format(
             ip=cls._get_ip(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')[:255],
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
             session_key=request.session.session_key,
         )

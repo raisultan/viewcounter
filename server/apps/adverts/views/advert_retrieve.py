@@ -4,10 +4,12 @@ from rest_framework.request import Request
 
 from ..serializers import AdvertSerializer
 from ..services import AdvertViewCountService
+from ..models import Advert
 
 
 class AdvertRetrieveAPIView(RetrieveAPIView):
     serializer_class = AdvertSerializer
+    queryset = Advert.objects.all()
 
     def retrieve(self, request: Request, *_, **__) -> Response:
         advert = self.get_object()
