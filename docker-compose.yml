@@ -1,49 +1,53 @@
-version: '3.3'
+version: '3.8'
+
+x-server-basic: &server-basic
+  build:
+    context: ./
+    dockerfile: ./server/Dockerfile
+  volumes:
+    - ./server:/server
+  environment:
+    DEBUG: 'True'
+    DATABASE_URL: 'postgres://postgres:@db:5432/postgres'
+    BROKER_URL: 'amqp://user:password@rabbitmq:5672/my_vhost'
+    REDIS_URL: 'redis://redis:6379'
+
 services:
-    server:
-      build:
-        context: ./
-        dockerfile: ./server/Dockerfile
-      command: bash -c "while !</dev/tcp/db/5432; do sleep 1; done;
-                        gunicorn config.wsgi -c /server/config/gunicorn.py"
-      volumes:
-        - ./server:/server
-      ports:
-        - "8000:8000"
-      depends_on:
-        - db
-        - rabbitmq
-        - celery
+  server:
+    command: bash -c "while !</dev/tcp/db/5432; do sleep 1; done;
+                      gunicorn config.wsgi -c /server/config/gunicorn.py"
+    volumes:
+      - ./server:/server
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
+      - celery
+    <<: *server-basic
+
+  db:
+      image: postgres:12.4-alpine
       environment:
-          DEBUG: 'True'
-          DATABASE_URL: 'postgres://postgres:postgres@db:5432/postgres'
-          BROKER_URL: 'amqp://user:password@rabbitmq:5672/my_vhost'
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
 
-    db:
-        image: postgres:12.4-alpine
-        environment:
-            POSTGRES_DB: postgres
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
+  rabbitmq:
+      image: rabbitmq:3.8.8-alpine
+      environment:
+          RABBITMQ_DEFAULT_USER: 'user'
+          RABBITMQ_DEFAULT_PASS: 'password'
+          RABBITMQ_DEFAULT_VHOST: 'my_vhost'
 
-    rabbitmq:
-        image: rabbitmq:3.8.8-alpine
-        environment:
-            RABBITMQ_DEFAULT_USER: 'user'
-            RABBITMQ_DEFAULT_PASS: 'password'
-            RABBITMQ_DEFAULT_VHOST: 'my_vhost'
+  celery:
+      command: celery -A config worker -B -l info -Q default,celery -s /var/run/celerybeat-schedule
+      volumes:
+          - ./server:/server
+      depends_on:
+          - db
+          - rabbitmq
+      <<: *server-basic
 
-    celery:
-        build:
-            context: ./
-            dockerfile: ./server/Dockerfile
-        command: celery -A config worker -B -l info -Q default,celery -s /var/run/celerybeat-schedule
-        volumes:
-            - ./server:/server
-        depends_on:
-            - db
-            - rabbitmq
-        environment:
-            DEBUG: 'True'
-            DATABASE_URL: 'postgres://postgres:@db:5432/postgres'
-            BROKER_URL: 'amqp://user:password@rabbitmq:5672/my_vhost'
+  redis:
+    image: redis:6.0.7-alpine
