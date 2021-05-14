@@ -138,3 +138,19 @@ if DEBUG:
     }
     MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
     INSTALLED_APPS += ['debug_toolbar']
+
+##################################################################
+# Cache settings
+##################################################################
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 10000
+        },
+        "TIMEOUT": 1600
+    }
+}
