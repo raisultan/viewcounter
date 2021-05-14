@@ -15,3 +15,6 @@ build:
 
 down:
 	docker-compose down -v
+
+createsuperuser:
+	docker-compose run --rm server sh -c "python manage.py createsuperuser"
