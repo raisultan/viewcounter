@@ -8,17 +8,12 @@ from ..models import Advert
 
 
 class AdvertViewCountService:
-    """
-    Mixin to evaluate a HttpRequest and a HitCount and determine whether or not
-    the HitCount should be incremented and the Hit recorded.
-    """
-
     DEFAULT_IP: Final[str] = '127.0.0.1'
     FALLBACK_IP: Final[str] = '10.0.0.1'
     IP_REGEX: Final[str] = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 
     VIEW_COUNT_CACHE_TEMPLATE: Final[str] = 'viewcount-{ip}-{user_agent}-{session_key}'
-    REQUEST_SESSION_CACHE_LIFETIME: Final[int] = 60 * 60  # 1 hour
+    REQUEST_SESSION_CACHE_LIFETIME: Final[int] = 60 * 60
 
     @classmethod
     def count(cls, request: HttpRequest, advert: Advert) -> bool:
