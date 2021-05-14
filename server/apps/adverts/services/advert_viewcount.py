@@ -23,8 +23,12 @@ class AdvertViewCountService:
         if not request_cache_value:
             advert.views = advert.views + 1
             advert.save()
-        else:
-            cache.set(request_cache_key, True, timeout=cls.REQUEST_SESSION_CACHE_LIFETIME)
+
+            cache.set(
+                key=cls._compose_cache_key(request),
+                value=True,
+                timeout=cls.REQUEST_SESSION_CACHE_LIFETIME,
+            )
 
     @classmethod
     def _get_ip(cls, request: HttpRequest) -> str:
