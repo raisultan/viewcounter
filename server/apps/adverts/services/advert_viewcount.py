@@ -1,7 +1,7 @@
-from typing import Final
 import re
-from django.core.cache import cache
+from typing import Final
 
+from django.core.cache import cache
 from django.http import HttpRequest
 
 from ..models import Advert
