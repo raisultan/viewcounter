@@ -2,6 +2,7 @@ import re
 from typing import Final
 
 from django.core.cache import cache
+from django.db.models import F
 from django.http import HttpRequest
 
 from ..models import Advert
@@ -21,11 +22,10 @@ class AdvertViewCountService:
         request_cache_value = cache.get(request_cache_key)
 
         if not request_cache_value:
-            advert.views = advert.views + 1
-            advert.save()
+            Advert.objects.filter(id=advert.id).update(views=F('views') + 1)
 
             cache.set(
-                key=cls._compose_cache_key(request),
+                key=request_cache_key,
                 value=True,
                 timeout=cls.REQUEST_SESSION_CACHE_LIFETIME,
             )
