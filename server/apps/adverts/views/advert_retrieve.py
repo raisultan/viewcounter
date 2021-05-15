@@ -9,7 +9,7 @@ from ..models import Advert
 
 class AdvertRetrieveAPIView(RetrieveAPIView):
     serializer_class = AdvertSerializer
-    queryset = Advert.objects.all()
+    queryset = Advert.objects.select_related('city', 'category')
 
     def retrieve(self, request: Request, *_, **__) -> Response:
         advert = self.get_object()

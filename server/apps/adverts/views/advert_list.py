@@ -6,4 +6,4 @@ from ..models import Advert
 
 class AdvertListAPIView(ListAPIView):
     serializer_class = AdvertSerializer
-    queryset = Advert.objects.all()
+    queryset = Advert.objects.select_related('city', 'category')
